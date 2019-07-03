@@ -24,7 +24,7 @@ Back
 
 # jar 다운로드
 
-링크 []
+링크 [본 README.md 폴더의 placefinder.jar]
 
 # 실행방법
 
