@@ -1,0 +1,7 @@
+@import '../../styles/utils';
+
+.button {
+  @include flex(auto, auto);
+  color: white;
+  cursor: pointer;
+}

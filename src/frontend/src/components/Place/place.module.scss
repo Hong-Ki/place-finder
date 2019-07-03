@@ -1,0 +1,65 @@
+@import '../../styles/utils';
+
+.placeBox {
+  @include flex(150px, 99%);
+
+  background-color: white;
+
+  justify-content: flex-start;
+
+  margin: 1px auto;
+
+  cursor: pointer;
+}
+
+.title {
+  @include flex(auto, 98%);
+  flex-direction: row;
+  border-color: $oc-yellow-3;
+  border-style: dashed;
+  padding: 2px;
+  border-width: 1px;
+
+  & > .text {
+    @include flex(auto, auto);
+    flex-direction: column;
+    font-size: 19px;
+
+    flex-grow: 4;
+
+    & > .category {
+      background-color: $oc-gray-3;
+      border-radius: 3px;
+      padding: 2px;
+      font-size: 3px;
+    }
+  }
+
+  & > .button {
+    @include flex(25px, 25px);
+    color: $oc-gray-6;
+
+    :hover {
+      color: $oc-gray-9;
+      transition-duration: 0.2s;
+    }
+  }
+
+  flex-grow: 1;
+}
+
+.detail {
+  @include flex(auto);
+  align-content: space-around;
+  background-color: $oc-gray-2;
+  font-size: 13px;
+  flex-grow: 3;
+
+  & span {
+    font-weight: 700;
+  }
+}
+
+.eventDisable {
+  cursor: auto;
+}

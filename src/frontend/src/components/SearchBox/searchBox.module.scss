@@ -1,0 +1,23 @@
+@import '../../styles/utils';
+
+.wrapper {
+  @include flex(auto, auto);
+  flex-grow: 1;
+  flex-direction: row;
+  min-height: 50px;
+
+  & input {
+    height: 30px;
+    margin: auto 2px;
+  }
+}
+
+.button {
+  @include flex(30px, 30px);
+  margin-right: 5px;
+
+  & > svg {
+    width: $full;
+    height: $full;
+  }
+}

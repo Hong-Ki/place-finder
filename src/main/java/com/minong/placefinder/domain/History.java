@@ -25,16 +25,16 @@ public class History {
   @Column(length = 200, nullable = false)
   private String keyword;
 
-  @Column(nullable = false)
-  private long time;
+  @Column(nullable = false, length = 19)
+  private String date;
 
   @Column(name = "user_id")
   private String userId;
 
   @Builder
-  public History(String keyword, String userId, long time) {
+  public History(String keyword, String userId, String date) {
     this.keyword = keyword;
     this.userId = userId;
-    this.time = time;
+    this.date = date;
   }
 }

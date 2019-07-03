@@ -1,0 +1,47 @@
+@import './utils';
+
+html,
+body,
+body > :nth-child(1) {
+  @include flex($full, $full);
+  background-color: $oc-gray-7;
+
+  margin: 0;
+  overflow: hidden;
+}
+
+.wrapper {
+  @include flex($full, $full);
+  justify-content: flex-start;
+
+  flex-direction: row;
+
+  background-color: white;
+  overflow: hidden;
+}
+
+.left {
+  @include flex($full, 400px);
+  overflow: hidden;
+  background-color: $oc-gray-9;
+}
+
+.right {
+  @include flex($full, auto);
+  overflow: hidden;
+  flex-grow: 1;
+
+  & > .map {
+    width: $full;
+    height: $full;
+  }
+}
+
+.overlay {
+  width: 396px;
+  height: 150px;
+}
+
+.hide {
+  display: none;
+}

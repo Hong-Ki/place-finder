@@ -1,0 +1,9 @@
+@import '../../styles/utils';
+
+.wrapper {
+  width: $full;
+  flex-grow: 10;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
