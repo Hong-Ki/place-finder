@@ -14,6 +14,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // http.headers().frameOptions().disable();
     // http.httpBasic();
 
-    http.authorizeRequests().antMatchers("/", "/**", "/users/**").permitAll();
+    http.authorizeRequests().antMatchers("/", "/**").permitAll();
   }
 }

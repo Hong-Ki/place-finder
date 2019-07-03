@@ -15,6 +15,8 @@ import PlaceList from '../components/PlaceList/PlaceList';
 import SearchBox from '../components/SearchBox/SearchBox';
 import PageNavigator from '../components/PageNavigator/PageNavigator';
 
+import { searchUri } from '../common/Uris';
+
 const cx = classNames.bind(styles);
 
 class PlacesContainer extends Component {
@@ -29,8 +31,9 @@ class PlacesContainer extends Component {
     const { keyword, page, PlacesActions } = this.props;
     if (keyword && keyword !== '') {
       axios
-        .get('http://localhost:8080/search', {
+        .get(searchUri, {
           params: { keyword: keyword, userId: 'min3259', page: page },
+          headers: { jwt: sessionStorage.getItem('jwt') },
         })
         .then(response => {
           const { data } = response.data;

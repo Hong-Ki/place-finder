@@ -1,0 +1,62 @@
+@import '../../styles/utils';
+
+.wrapper {
+  @include flex(30%, 40%);
+  background-color: white;
+  justify-content: flex-start;
+
+  z-index: $modal-z-index;
+
+  color: $oc-gray-8;
+}
+
+.title {
+  @include flex(15%, 98%);
+  flex-direction: row;
+  border-color: $oc-yellow-3;
+  border-style: dashed;
+  border-width: 3px;
+
+  font-size: 1.8vw;
+
+  font-weight: 300;
+}
+
+form {
+  @include flex(85%, $full);
+  flex-direction: column;
+
+  & input {
+    width: 60%;
+    height: 30px;
+
+    font-size: 22px;
+
+    margin: 5px;
+  }
+}
+.contents {
+  @include flex(70%, $full);
+}
+
+.buttons {
+  @include flex(30%, $full);
+  flex-direction: row;
+  color: $oc-gray-0;
+  background-color: $oc-gray-5;
+
+  & > div {
+    @include flex();
+    & > svg {
+      width: 1.5em;
+      height: 1.5em;
+    }
+  }
+
+  :hover {
+    background-color: $oc-gray-8;
+    color: $oc-yellow-5;
+
+    transition-duration: 0.2s;
+  }
+}

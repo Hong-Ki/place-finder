@@ -19,8 +19,6 @@ public class UserService {
   public String registerUser(Map<String, String> param) {
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     String password = passwordEncoder.encode(param.get("password"));
-    System.out.println(param.toString());
-    System.out.println(password);
     User user = User.builder().id(param.get("id")).name(param.get("name")).password(password).build();
 
     String result = Result.success();
@@ -33,10 +31,24 @@ public class UserService {
     return result;
   }
 
-  public String getUserList() {
+  public boolean isUser(String id) {
+    try {
+      User user = userDao.getOne(id);
+      if (user == null) {
+        return false;
+      }
+
+      return true;
+    } catch (JpaSystemException e) {
+      return false;
+    }
+
+  }
+
+  public String getUser(String id) {
     String result;
     try {
-      result = Result.success(userDao.findAll());
+      result = Result.success(userDao.findById(id));
     } catch (JpaSystemException e) {
       result = Result.fail();
     }

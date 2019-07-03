@@ -21,6 +21,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -73,25 +74,30 @@ public class SearchService {
   }
 
   public String parsingResult(String result) {
-    Gson gson = new GsonBuilder().create();
-    JsonObject jsonObject = gson.fromJson(result, JsonObject.class);
+    try {
 
-    List<PlaceResult> list = gson.fromJson(jsonObject.getAsJsonArray("documents"),
-        new TypeToken<ArrayList<PlaceResult>>() {
-        }.getType());
+      Gson gson = new GsonBuilder().create();
+      JsonObject jsonObject = gson.fromJson(result, JsonObject.class);
 
-    for (PlaceResult place : list) {
-      place.setShortcuts(new StringBuilder(kakaoMapShortcutsUri).append(place.getId()).toString());
+      List<PlaceResult> list = gson.fromJson(jsonObject.getAsJsonArray("documents"),
+          new TypeToken<ArrayList<PlaceResult>>() {
+          }.getType());
+
+      for (PlaceResult place : list) {
+        place.setShortcuts(new StringBuilder(kakaoMapShortcutsUri).append(place.getId()).toString());
+      }
+
+      int total = jsonObject.getAsJsonObject("meta").get("pageable_count").getAsInt();
+
+      Map<String, Object> data = new HashMap<>();
+      data.put("places", list);
+      data.put("pageTotal",
+          total % searchPageColunm == 0 ? total / searchPageColunm : ((int) total / searchPageColunm) + 1);
+
+      return Result.success(data);
+    } catch (HttpServerErrorException e) {
+      return Result.fail();
     }
-
-    int total = jsonObject.getAsJsonObject("meta").get("pageable_count").getAsInt();
-
-    Map<String, Object> data = new HashMap<>();
-    data.put("places", list);
-    data.put("pageTotal",
-        total % searchPageColunm == 0 ? total / searchPageColunm : ((int) total / searchPageColunm) + 1);
-
-    return Result.success(data);
   }
 
   @Transactional
@@ -103,8 +109,6 @@ public class SearchService {
 
       List<History> historyList = user.getHistoryList();
 
-      // boolean isFindAndUpdateKeyword = isFindAndUpdateKeyword(historyList,
-      // param.get("keyword"));
       historyList.sort(Comparator.comparing((History h) -> (h.getDate())));
 
       historyList.add(0,

@@ -1,0 +1,29 @@
+package com.minong.placefinder.controller;
+
+import com.minong.placefinder.service.AuthService;
+import com.minong.placefinder.service.KeywordService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@CrossOrigin
+@RestController
+@RequestMapping(value = "/keyword", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+public class KeywordController {
+  @Autowired
+  AuthService authservice;
+  @Autowired
+  KeywordService keywordService;
+
+  @GetMapping(value = "/popular")
+  @ResponseBody
+  public String getUser() {
+    return keywordService.getKeyword();
+  }
+
+}
