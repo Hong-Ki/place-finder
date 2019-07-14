@@ -3,29 +3,28 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as modalActions from '../modules/modal';
+import * as keywordsActions from '../modules/keywords';
+import * as placesActions from '../modules/places';
 import LoginModal from '../components/LoginModal/LoginModal';
+import KeywordList from '../components/KeywordList/KeywordList';
 
 import classNames from 'classnames/bind';
 import * as styles from '../styles/layout.module.scss';
 
-import axios from 'axios';
+import { get } from '../common/Request';
 import { tokenCheckUri } from '../common/Uris';
 
 const cx = classNames.bind(styles);
 
 class ModalContainer extends Component {
   componentDidMount() {
-    axios
-      .get(tokenCheckUri, {
-        headers: { jwt: sessionStorage.getItem('jwt') },
-      })
-      .then(response => {
-        const { data } = response;
-        const { ModalActions } = this.props;
-        if (data.result === 'SUCCESS') {
-          ModalActions.setVisible(false);
-        }
-      });
+    get(tokenCheckUri).then(response => {
+      const { data } = response;
+      const { ModalActions } = this.props;
+      if (data.result === 'SUCCESS') {
+        ModalActions.setVisible(false);
+      }
+    });
   }
 
   onLogin = result => {
@@ -33,12 +32,31 @@ class ModalContainer extends Component {
     ModalActions.setVisible(false);
   };
 
+  onExit = () => {
+    const { ModalActions } = this.props;
+    ModalActions.setVisible(false);
+  };
+
+  onSearch = keyword => {
+    const { PlacesActions } = this.props;
+    PlacesActions.search({ keyword: keyword, page: 1 });
+    this.onExit();
+  };
+
   render() {
-    const { visible } = this.props;
-    const { onLogin } = this;
+    const { visible, mode, keywords } = this.props;
+    const { onLogin, onExit, onSearch } = this;
     return (
       <div className={cx(['modal', visible ? '' : 'hide'])}>
-        <LoginModal onLogin={onLogin} />
+        {(mode === '' || mode === 'LOGIN') && <LoginModal onLogin={onLogin} />}
+        {(mode === 'HISTORY' || mode === 'POPULAR') && (
+          <KeywordList
+            keywords={keywords}
+            mode={mode}
+            onExit={onExit}
+            onSearch={onSearch}
+          />
+        )}
       </div>
     );
   }
@@ -47,8 +65,12 @@ class ModalContainer extends Component {
 export default connect(
   state => ({
     visible: state.modal.get('visible'),
+    mode: state.modal.get('mode'),
+    keywords: state.keywords,
   }),
   dispatch => ({
     ModalActions: bindActionCreators(modalActions, dispatch),
+    KeywordsActions: bindActionCreators(keywordsActions, dispatch),
+    PlacesActions: bindActionCreators(placesActions, dispatch),
   }),
 )(ModalContainer);
