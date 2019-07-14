@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import { Map, List } from 'immutable';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as placesActions from '../modules/places';
 import * as mapsActions from '../modules/maps';
-
-import axios from 'axios';
+import * as modalActions from '../modules/modal';
 
 import classNames from 'classnames/bind';
 import * as styles from '../styles/layout.module.scss';
@@ -15,55 +13,22 @@ import PlaceList from '../components/PlaceList/PlaceList';
 import SearchBox from '../components/SearchBox/SearchBox';
 import PageNavigator from '../components/PageNavigator/PageNavigator';
 
-import { searchUri } from '../common/Uris';
-
 const cx = classNames.bind(styles);
 
 class PlacesContainer extends Component {
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (
-      prevProps.page === this.props.page &&
-      prevProps.keyword === this.props.keyword
-    ) {
-      return false;
-    }
-
-    const { keyword, page, PlacesActions } = this.props;
-    if (keyword && keyword !== '') {
-      axios
-        .get(searchUri, {
-          params: { keyword: keyword, userId: 'min3259', page: page },
-          headers: { jwt: sessionStorage.getItem('jwt') },
-        })
-        .then(response => {
-          const { data } = response.data;
-          const payload = {
-            places: List(data.places.map(place => Map(place))),
-            page: page,
-            pageTotal: data.pageTotal,
-          };
-          PlacesActions.setPlaces(payload);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    } else {
-      const payload = {
-        places: List([]),
-        page: 0,
-        pageTotal: 0,
-      };
-      PlacesActions.setPlaces(payload);
-    }
-  }
-
   onSearch = () => {
-    const { PlacesActions } = this.props;
-    PlacesActions.search();
+    const { PlacesActions, keyword } = this.props;
+    PlacesActions.search({ keyword: keyword, page: 1 });
   };
 
-  onHistory = () => {};
-  onPopular = () => {};
+  onHistory = () => {
+    const { ModalActions } = this.props;
+    ModalActions.setMode('HISTORY');
+  };
+  onPopular = () => {
+    const { ModalActions } = this.props;
+    ModalActions.setMode('POPULAR');
+  };
 
   onChange = keyword => {
     const { PlacesActions } = this.props;
@@ -76,12 +41,12 @@ class PlacesContainer extends Component {
   };
 
   onPage = page => {
-    const { PlacesActions } = this.props;
-    PlacesActions.setPage(page);
+    const { PlacesActions, searchKeyword } = this.props;
+    PlacesActions.search({ keyword: searchKeyword, page: page });
   };
 
   render() {
-    const { places, page, pageTotal } = this.props;
+    const { places, page, pageTotal, searchKeyword } = this.props;
     const { onSearch, onHistory, onPopular, onChange, onSelect, onPage } = this;
     return (
       <div className={cx('left')}>
@@ -90,6 +55,7 @@ class PlacesContainer extends Component {
           onChange={onChange}
           onHistory={onHistory}
           onPopular={onPopular}
+          defaultValue={searchKeyword}
         />
         <PlaceList places={places} onSelect={onSelect} />
         {places.size > 0 && (
@@ -105,10 +71,12 @@ export default connect(
     places: state.places.get('places'),
     page: state.places.get('page'),
     pageTotal: state.places.get('pageTotal'),
-    keyword: state.places.get('searchKeyword'),
+    keyword: state.places.get('keyword'),
+    searchKeyword: state.places.get('searchKeyword'),
   }),
   dispatch => ({
     PlacesActions: bindActionCreators(placesActions, dispatch),
     MapsActions: bindActionCreators(mapsActions, dispatch),
+    ModalActions: bindActionCreators(modalActions, dispatch),
   }),
 )(PlacesContainer);
