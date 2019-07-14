@@ -4,8 +4,6 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +29,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.minong.placefinder.common.Constant;
 import com.minong.placefinder.common.Result;
+import com.minong.placefinder.dao.HistoryDao;
 import com.minong.placefinder.dao.KeywordDao;
 import com.minong.placefinder.dao.UserDao;
 import com.minong.placefinder.domain.History;
@@ -45,6 +44,8 @@ public class SearchService {
   UserDao userDao;
   @Autowired
   KeywordDao keywordDao;
+  @Autowired
+  HistoryDao historyDao;
 
   @Value("${kakao.rest.api.key}")
   String kakaoRestApiKey;
@@ -55,6 +56,7 @@ public class SearchService {
   @Value("${search.page.column}")
   int searchPageColunm;
 
+  @Transactional
   public String getSearchResultForKaKao(Map<String, String> param) {
 
     Map<String, String> queryParam = new HashMap<>();
@@ -65,15 +67,20 @@ public class SearchService {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.set("Authorization", new StringBuilder(Constant.KAKAO_API_KEY_PREFIX).append(kakaoRestApiKey).toString());
-    HttpEntity entity = new HttpEntity(headers);
+    HttpEntity<String> entity = new HttpEntity<String>(headers);
 
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
 
+    if (param.get("page").equals("1")) {
+      this.saveHistory(param);
+      this.saveKeyword(param);
+    }
+
     return parsingResult(response.getBody());
   }
 
-  public String parsingResult(String result) {
+  private String parsingResult(String result) {
     try {
 
       Gson gson = new GsonBuilder().create();
@@ -100,32 +107,32 @@ public class SearchService {
     }
   }
 
-  @Transactional
-  public String saveHistory(Map<String, String> param) {
-    String result = "";
-
+  private void saveHistory(Map<String, String> param) {
     try {
       User user = userDao.findById(param.get("userId")).orElseThrow(() -> new NoResultException("User doesn't exist"));
+      long count = historyDao.countByUserIdAndKeyword(param.get("userId"), param.get("keyword"));
+      String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss"));
+
+      if (count > 0) {
+        History history = historyDao.findByUserIdAndKeyword(param.get("userId"), param.get("keyword"));
+        history.setDate(date);
+
+        historyDao.save(history);
+
+        return;
+      }
 
       List<History> historyList = user.getHistoryList();
 
-      historyList.sort(Comparator.comparing((History h) -> (h.getDate())));
+      historyList.add(History.builder().keyword(param.get("keyword")).date(date).userId(user.getId()).build());
 
-      historyList.add(0,
-          History.builder().keyword(param.get("keyword"))
-              .date(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss"))).userId(user.getId())
-              .build());
-
-      result = Result.success(historyList);
     } catch (NoResultException e) {
-      result = Result.fail(e.getMessage());
+      throw e;
     }
 
-    return result;
   }
 
-  @Transactional
-  public String saveKeyword(Map<String, String> param) {
+  private String saveKeyword(Map<String, String> param) {
     String result = "";
 
     try {
@@ -140,9 +147,9 @@ public class SearchService {
 
       result = Result.success();
     } catch (NoResultException e) {
-      result = Result.fail(e.getMessage());
+      throw e;
     } catch (NullPointerException e) {
-      result = Result.fail(e.getMessage());
+      throw e;
     }
 
     return result;

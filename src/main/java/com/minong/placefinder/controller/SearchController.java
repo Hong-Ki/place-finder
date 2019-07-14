@@ -36,9 +36,6 @@ public class SearchController {
     param.put("userId", userId);
     param.put("page", page);
 
-    searchService.saveHistory(param);
-    searchService.saveKeyword(param);
-
     return searchService.getSearchResultForKaKao(param);
 
   }
