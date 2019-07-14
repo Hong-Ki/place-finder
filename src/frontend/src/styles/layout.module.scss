@@ -24,6 +24,8 @@ body > :nth-child(1) {
   @include flex($full, 400px);
   overflow: hidden;
   background-color: $oc-gray-9;
+
+  justify-content: flex-start;
 }
 
 .right {
