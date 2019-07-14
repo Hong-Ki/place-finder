@@ -7,9 +7,14 @@ import { MdHistory, MdSearch, MdShowChart } from 'react-icons/md';
 
 const cx = classNames.bind(styles);
 
-const SearchBox = props => {
-  const onChange = e => {
-    const { onChange } = props;
+const SearchBox = ({
+  defaultValue,
+  onChange,
+  onSearch,
+  onHistory,
+  onPopular,
+}) => {
+  const onChangeKeyword = e => {
     const { value } = e.target;
 
     onChange(value);
@@ -17,14 +22,18 @@ const SearchBox = props => {
 
   return (
     <div className={cx('wrapper')}>
-      <Button className={cx('button')} onClick={props.onHistory}>
+      <Button className={cx('button')} onClick={onHistory}>
         <MdHistory />
       </Button>
-      <Button className={cx('button')} onClick={props.onPopular}>
+      <Button className={cx('button')} onClick={onPopular}>
         <MdShowChart />
       </Button>
-      <input placeholder={'키워드를 입력해주세요..'} onChange={onChange} />
-      <Button className={cx('button')} onClick={props.onSearch}>
+      <input
+        placeholder={'키워드를 입력해주세요..'}
+        onChange={onChangeKeyword}
+        defaultValue={defaultValue}
+      />
+      <Button className={cx('button')} onClick={onSearch}>
         <MdSearch />
       </Button>
     </div>
