@@ -7,7 +7,7 @@ import * as styles from './modal.module.scss';
 import { IoMdLogIn } from 'react-icons/io';
 
 import { loginUri } from '../../common/Uris';
-import { post } from '../../common/Request';
+import { post } from 'axios';
 
 const cx = classNames.bind(styles);
 
@@ -18,7 +18,10 @@ class LoginModal extends Component {
   }
   onLogin = e => {
     const form = this.formRef.current;
-    post(loginUri, new FormData(form)).then(response => {
+    const formData = new FormData(form);
+
+    //axios.post 사용.. Request.post사용시 에러
+    post(loginUri, formData).then(response => {
       const { onLogin } = this.props;
       const { result } = response.data;
       const jwt = response.data.data;
