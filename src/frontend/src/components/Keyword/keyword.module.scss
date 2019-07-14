@@ -1,0 +1,31 @@
+@import '../../styles/utils';
+
+.wrapper {
+  @include flex(45px, 98%);
+
+  flex-direction: row;
+
+  background-color: white;
+  color: $oc-gray-8;
+
+  font-size: 19px;
+
+  margin-top: 3px;
+}
+
+.keyword {
+  @include flex(100%, auto);
+  flex-grow: 1;
+}
+
+.etc {
+  @include flex(auto, auto);
+
+  & > span {
+    font-size: 5px;
+    background-color: $oc-gray-3;
+    border-radius: 5px;
+    margin-right: 5px;
+    padding: 1px;
+  }
+}
