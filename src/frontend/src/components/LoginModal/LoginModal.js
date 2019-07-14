@@ -4,10 +4,10 @@ import Button from '../Button/Button';
 import classNames from 'classnames/bind';
 import * as styles from './modal.module.scss';
 
-import { IoMdLogIn, IoMdClose } from 'react-icons/io';
+import { IoMdLogIn } from 'react-icons/io';
 
-import axios from 'axios';
 import { loginUri } from '../../common/Uris';
+import { post } from '../../common/Request';
 
 const cx = classNames.bind(styles);
 
@@ -18,7 +18,7 @@ class LoginModal extends Component {
   }
   onLogin = e => {
     const form = this.formRef.current;
-    axios.post(loginUri, new FormData(form)).then(response => {
+    post(loginUri, new FormData(form)).then(response => {
       const { onLogin } = this.props;
       const { result } = response.data;
       const jwt = response.data.data;
